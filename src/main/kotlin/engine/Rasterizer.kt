@@ -1,8 +1,9 @@
 package engine
 
+import common.LayerTree
+import common.PaintContext
 import org.jetbrains.skia.*
 import org.lwjgl.opengl.GL11
-import kotlin.random.Random
 
 class Rasterizer(
     private val width: Int,
@@ -25,15 +26,13 @@ class Rasterizer(
         )!!
     }
 
-    fun drawToSurface() {
+    fun drawToSurface(layerTree: LayerTree) {
         println("draw")
-        val paint = Paint().apply { color = 0xFFFF0000.toInt() }
 
-        val randomX = Random.nextFloat() * width
-        val randomY = Random.nextFloat() * height
+        layerTree.preroll()
 
         surface.canvas.clear(0xFFFFFFFF.toInt())
-        surface.canvas.drawCircle(randomX, randomY, 40f, paint)
+        layerTree.paint(PaintContext(surface.canvas, context))
 
         context.flush()
     }
