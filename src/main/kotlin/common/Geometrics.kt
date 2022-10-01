@@ -1,6 +1,7 @@
 package common
 
 import org.jetbrains.skia.Matrix33
+import org.jetbrains.skia.RRect
 import org.jetbrains.skia.Rect
 import kotlin.math.abs
 import kotlin.math.max
@@ -194,4 +195,19 @@ fun Matrix33.transform(offset: Offset): Offset {
     val y = a21 * offset.dx + a22 * offset.dy + a23
     val scale = a31 * offset.dx + a32 * offset.dy + a33
     return Offset(x / scale, y / scale)
+}
+
+// RRect Extensions
+fun RRect.makeOffset(dx: Float, dy: Float): RRect {
+    return RRect.makeComplexLTRB(
+        this.left + dx,
+        this.top + dy,
+        this.right + dx,
+        this.bottom + dy,
+        this.radii
+    )
+}
+
+fun RRect.makeOffset(offset: Offset): RRect {
+    return this.makeOffset(offset.dx.toFloat(), offset.dy.toFloat())
 }
