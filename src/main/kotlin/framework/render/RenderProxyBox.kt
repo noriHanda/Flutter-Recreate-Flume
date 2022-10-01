@@ -3,16 +3,16 @@ package framework.render
 import common.Offset
 import framework.PaintingContext
 import framework.geometrics.BoxConstraints
+import framework.render.mixin.RenderObjectWithChild
 
-abstract class RenderProxyBox(
-    val child: RenderBox? = null,
-) : RenderBox() {
+abstract class RenderProxyBox : RenderBox(), RenderObjectWithChild<RenderBox> {
+    override var child: RenderBox? = null
     override fun layout(constraints: BoxConstraints) {
-        if (child != null) {
-            child.layout(constraints)
-            size = child.size
+        size = if (child != null) {
+            child!!.layout(constraints)
+            child!!.size
         } else {
-            size = constraints.smallest
+            constraints.smallest
         }
     }
 
