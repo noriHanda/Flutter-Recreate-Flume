@@ -3,14 +3,9 @@ import engine.GLView
 import engine.TaskRunner
 import engine.TaskRunners
 import framework.RenderPipeline
-import framework.geometrics.BoxConstraints
-import framework.geometrics.MainAxisSize
-import framework.painting.BorderRadius
-import framework.render.*
+import framework.render.RenderView
 import framework.render.clip.CustomClipper
-import framework.render.clip.RenderClipOval
-import framework.render.clip.RenderClipPath
-import framework.render.clip.RenderClipRRect
+import framework.widget.*
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.PictureRecorder
@@ -48,38 +43,26 @@ fun main() {
     while (!shell.glView.windowShouldClose()) {
         if (keyPressed) {
             keyPressed = false
-            renderPipeline.renderView!!.child = RenderPositionedBox(
-                child = RenderFlex(
-                    mainAxisSize = MainAxisSize.Min,
-                    children = listOf(
-                        RenderClipPath(
-                            clipper = ArcClipper(),
-                            child = RenderConstrainedBox(
-                                additionalConstraints = BoxConstraints.tight(Size(100.0, 100.0)),
-                                child = RenderColoredBox(0xFFF44336.toInt())
-                            )
-                        ),
-                        RenderClipRRect(
-                            borderRadius = BorderRadius.circular(20.0),
-                            child = RenderConstrainedBox(
-                                additionalConstraints = BoxConstraints.tight(Size(100.0, 100.0)),
-                                child = RenderColoredBox(0xFFFFEB3B.toInt())
-                            )
-                        ),
-                        RenderClipOval(
-                            child = RenderConstrainedBox(
-                                additionalConstraints = BoxConstraints.tight(Size(100.0, 100.0)),
-                                child = RenderColoredBox(0xFF4CAF50.toInt())
-                            )
-                        )
-                    )
-                )
-            )
+            RenderObjectToWidgetAdapter(
+                createWidgetTree(),
+                renderPipeline.renderView!!
+            ).attachToRenderTree()
             shell.drawFrame()
         }
         shell.glView.pollEvents()
     }
     shell.taskRunners.terminateAll()
+}
+
+fun createWidgetTree(): Widget {
+    return Align(
+        child = SizedBox(
+            width = 100.0, height = 100.0,
+            child = ColoredBox(
+                color = 0xFFFF0000.toInt()
+            )
+        )
+    )
 }
 
 fun createRandomTree(width: Float, height: Float): LayerTree {
