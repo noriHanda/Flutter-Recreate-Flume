@@ -7,6 +7,7 @@ import framework.geometrics.Axis
 import framework.geometrics.MainAxisSize
 import framework.painting.BorderRadius
 import framework.render.RenderView
+import framework.render.TextSpan
 import framework.render.clip.CustomClipper
 import framework.widget.*
 import framework.widget.paint.ClipOval
@@ -16,6 +17,7 @@ import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.PictureRecorder
 import org.jetbrains.skia.Rect
+import org.jetbrains.skia.paragraph.TextStyle
 import org.lwjgl.glfw.GLFW.GLFW_KEY_M
 import org.lwjgl.glfw.GLFW.GLFW_PRESS
 import kotlin.random.Random
@@ -84,6 +86,14 @@ fun createWidgetTree(): Widget {
                     child = SizedBox(
                         width = 100.0, height = 100.0,
                         child = ColoredBox(color = 0xFF4CAF50.toInt())
+                    )
+                ), RichText(
+                    TextSpan(
+                        "信号機だよ",
+                        textStyle = TextStyle().apply {
+                            color = 0xFFFF0000.toInt()
+                            fontSize = 50f
+                        }
                     )
                 )
             )
