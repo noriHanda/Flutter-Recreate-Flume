@@ -9,6 +9,7 @@ import framework.painting.BorderRadius
 import framework.render.RenderView
 import framework.render.TextSpan
 import framework.render.clip.CustomClipper
+import framework.runApp
 import framework.widget.*
 import framework.widget.paint.ClipOval
 import framework.widget.paint.ClipPath
@@ -34,11 +35,9 @@ fun main() {
         renderView = RenderView(width.toDouble(), height.toDouble())
     }
 
-    val shell = Shell(taskRunners, glView, null, renderPipeline, width, height)
+    val shell = Shell(taskRunners, glView, null, width, height)
 
     shell.initRasterThread()
-
-    shell.drawFrame()
 
     var keyPressed = false
 
@@ -51,11 +50,7 @@ fun main() {
     while (!shell.glView.windowShouldClose()) {
         if (keyPressed) {
             keyPressed = false
-            RenderObjectToWidgetAdapter(
-                createWidgetTree(),
-                renderPipeline.renderView!!
-            ).attachToRenderTree()
-            shell.drawFrame()
+            runApp(shell, createWidgetTree())
         }
         shell.glView.pollEvents()
     }
