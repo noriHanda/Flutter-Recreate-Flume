@@ -1,12 +1,10 @@
-import common.*
-import engine.GLView
-import engine.TaskRunner
-import engine.TaskRunners
-import framework.RenderPipeline
+import common.Offset
+import common.Size
+import engine.runFlume
+import framework.WidgetsFlumeBinding
 import framework.geometrics.Axis
 import framework.geometrics.MainAxisSize
 import framework.painting.BorderRadius
-import framework.render.RenderView
 import framework.render.TextSpan
 import framework.render.clip.CustomClipper
 import framework.runApp
@@ -14,50 +12,31 @@ import framework.widget.*
 import framework.widget.paint.ClipOval
 import framework.widget.paint.ClipPath
 import framework.widget.paint.ClipRRect
-import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Path
-import org.jetbrains.skia.PictureRecorder
-import org.jetbrains.skia.Rect
 import org.jetbrains.skia.paragraph.TextStyle
-import org.lwjgl.glfw.GLFW.GLFW_KEY_M
-import org.lwjgl.glfw.GLFW.GLFW_PRESS
-import kotlin.random.Random
 
 fun main() {
-    val width = 640
-    val height = 480
-
-    val taskRunners = TaskRunners(rasterTaskRunner = TaskRunner(), uiTaskRunner = TaskRunner())
-
-    val glView = GLView(width, height)
-
-    val renderPipeline = RenderPipeline().apply {
-        renderView = RenderView(width.toDouble(), height.toDouble())
-    }
-
-    val shell = Shell(taskRunners, glView, null, width, height)
-
-    shell.initRasterThread()
-
-    var keyPressed = false
-
-    glView.setKeyCallback { _, key, _, action, _ ->
-        if (key == GLFW_KEY_M && action == GLFW_PRESS) {
-            keyPressed = true
-        }
-    }
-
-    while (!shell.glView.windowShouldClose()) {
-        if (keyPressed) {
-            keyPressed = false
-            runApp(shell, createWidgetTree())
-        }
-        shell.glView.pollEvents()
-    }
-    shell.taskRunners.terminateAll()
+    runFlume(appMain = { appMain() })
 }
 
-fun createWidgetTree(): Widget {
+fun appMain() {
+    runApp(createWidgetTree())
+    WidgetsFlumeBinding.setOnKeyEventCallback {
+        when (it.character) {
+            "r" -> runApp(createWidgetTree(LightPhase.Red))
+            "y" -> runApp(createWidgetTree(LightPhase.Yellow))
+            "g" -> runApp(createWidgetTree(LightPhase.Green))
+            "a" -> runApp(createWidgetTree(LightPhase.All))
+        }
+    }
+}
+
+enum class LightPhase {
+    Red, Green, Yellow, All
+}
+
+fun createWidgetTree(phase: LightPhase = LightPhase.All): Widget {
+    val darken = 0xFF9E9E9E.toInt()
     return Align(
         child = Flex(
             mainAxisSize = MainAxisSize.Min,
@@ -67,22 +46,32 @@ fun createWidgetTree(): Widget {
                     clipper = ArcClipper(),
                     child = SizedBox(
                         width = 100.0, height = 100.0,
-                        child = ColoredBox(color = 0xFFF44336.toInt())
+                        child = ColoredBox(
+                            color = if (phase in listOf(LightPhase.Red, LightPhase.All)) 0xFFF44336.toInt()
+                            else darken
+                        )
                     )
                 ),
                 ClipRRect(
                     borderRadius = BorderRadius.circular(20.0),
                     child = SizedBox(
                         width = 100.0, height = 100.0,
-                        child = ColoredBox(color = 0xFFFFEB3B.toInt())
+                        child = ColoredBox(
+                            color = if (phase in listOf(LightPhase.Yellow, LightPhase.All)) 0xFFFFEB3B.toInt()
+                            else darken
+                        )
                     )
                 ),
                 ClipOval(
                     child = SizedBox(
                         width = 100.0, height = 100.0,
-                        child = ColoredBox(color = 0xFF4CAF50.toInt())
+                        child = ColoredBox(
+                            color = if (phase in listOf(LightPhase.Green, LightPhase.All)) 0xFF4CAF50.toInt()
+                            else darken
+                        )
                     )
-                ), RichText(
+                ),
+                RichText(
                     TextSpan(
                         "信号機だよ",
                         textStyle = TextStyle().apply {
@@ -124,37 +113,4 @@ class ArcClipper : CustomClipper<Path>() {
     }
 
     override fun shouldReclip(oldClipper: CustomClipper<Path>): Boolean = false
-}
-
-fun createRandomTree(width: Float, height: Float): LayerTree {
-    val root = ContainerLayer()
-    val rect = Rect.makeXYWH(0f, 0f, width, height)
-    val leaf = PictureLayer()
-    val recorder = PictureRecorder()
-    val canvas = recorder.beginRecording(rect)
-
-    val paint = Paint().apply { color = 0xFFFF0000.toInt() }
-
-    val randomX = Random.nextFloat() * width
-    val randomY = Random.nextFloat() * height
-
-    canvas.drawCircle(randomX, randomY, 40f, paint)
-
-    leaf.picture = recorder.finishRecordingAsPicture()
-    root.children.add(leaf)
-
-    val opacity = OpacityLayer(alpha = 150)
-
-    val opacityPicture = PictureLayer()
-    val opacityRecorder = PictureRecorder()
-    val opacityCanvas = opacityRecorder.beginRecording(rect)
-    opacityCanvas.drawCircle(0f, 0f, 60f, paint)
-    opacityPicture.picture = opacityRecorder.finishRecordingAsPicture()
-    opacity.children.add(opacityPicture)
-
-    root.children.add(opacity)
-
-    return LayerTree().apply {
-        rootLayer = root
-    }
 }

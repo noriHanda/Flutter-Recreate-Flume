@@ -1,19 +1,28 @@
 package framework
 
+import common.KeyEvent
 import framework.element.Element
 import framework.render.RenderView
 import framework.widget.RenderObjectToWidgetAdapter
 import framework.widget.Widget
 
-object WidgetsFlumeBinding {
+object WidgetsFlumeBinding : WidgetsBinding {
     lateinit var pipeline: RenderPipeline
     lateinit var engine: Engine
     var renderViewElement: Element? = null
     var initialized = false
-    fun ensureInitialized(engine: Engine) {
+    var engineConnected = false
+    override fun connectToEngine(engine: Engine) {
+        this.engine = engine
+        engineConnected = true
+    }
+
+    fun ensureInitialized() {
+        if (!engineConnected) {
+            throw Exception("tried to initialize before connecting to engine.")
+        }
         if (initialized) return
         initialized = true
-        this.engine = engine
         val configuration = engine.viewConfiguration
         pipeline = RenderPipeline().apply {
             renderView = RenderView(configuration.size.width, configuration.size.height)
@@ -25,9 +34,25 @@ object WidgetsFlumeBinding {
             RenderObjectToWidgetAdapter(rootWidget, pipeline.renderView!!).attachToRenderTree()
     }
 
+    override fun beginFrame() {
+        if (!initialized) return
+        drawFrame()
+    }
+
+
     fun drawFrame() {
         pipeline.flushLayout()
         pipeline.flushPaint()
         engine.render(pipeline.renderView!!.layer)
+    }
+
+
+    var keyEventListener: ((KeyEvent) -> Unit)? = null
+    fun setOnKeyEventCallback(listener: (KeyEvent) -> Unit) {
+        keyEventListener = listener
+    }
+
+    override fun handleKeyEvent(event: KeyEvent) {
+        keyEventListener?.invoke(event)
     }
 }

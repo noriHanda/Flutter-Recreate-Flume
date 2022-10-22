@@ -27,6 +27,8 @@ abstract class Layer {
 
     abstract fun paint(context: PaintContext)
     abstract fun preroll()
+
+    abstract fun clone(): Layer
 }
 
 open class ContainerLayer : Layer() {
@@ -53,6 +55,14 @@ open class ContainerLayer : Layer() {
             child.paint(context)
         }
     }
+
+    override fun clone(): Layer {
+        val cloned = ContainerLayer()
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
+    }
 }
 
 class PictureLayer : Layer() {
@@ -64,6 +74,12 @@ class PictureLayer : Layer() {
 
     override fun paint(context: PaintContext) {
         picture?.playback(context.canvas)
+    }
+
+    override fun clone(): Layer {
+        val cloned = PictureLayer()
+        cloned.picture = picture
+        return cloned
     }
 }
 
@@ -93,6 +109,14 @@ class TransformLayer(
 
         context.canvas.restore()
     }
+
+    override fun clone(): Layer {
+        val cloned = TransformLayer(transform)
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
+    }
 }
 
 class OpacityLayer(
@@ -106,6 +130,14 @@ class OpacityLayer(
         context.canvas.saveLayer(paintBounds.roundOut(), paint)
         super.paint(context)
         context.canvas.restore()
+    }
+
+    override fun clone(): Layer {
+        val cloned = OpacityLayer(alpha)
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
     }
 }
 
@@ -127,6 +159,14 @@ class ClipPathLayer(
         super.paint(context)
         context.canvas.restore()
     }
+
+    override fun clone(): Layer {
+        val cloned = ClipPathLayer(clipPath, clipBehavior)
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
+    }
 }
 
 class ClipRectLayer(
@@ -146,6 +186,14 @@ class ClipRectLayer(
         super.paint(context)
         context.canvas.restore()
     }
+
+    override fun clone(): Layer {
+        val cloned = ClipRectLayer(clipRect, clipBehavior)
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
+    }
 }
 
 class ClipRRectLayer(
@@ -164,6 +212,14 @@ class ClipRRectLayer(
 
         super.paint(context)
         context.canvas.restore()
+    }
+
+    override fun clone(): Layer {
+        val cloned = ClipRRectLayer(clipRRect, clipBehavior)
+        for (child in children) {
+            cloned.children.add(child.clone())
+        }
+        return cloned
     }
 }
 

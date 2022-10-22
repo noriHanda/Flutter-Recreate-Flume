@@ -10,6 +10,26 @@ import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.paragraph.*
 import kotlin.math.ceil
 
+class RenderParagraph(
+    text: TextSpan
+) : RenderBox(), ContainerRenderObject<RenderBox> {
+    private val textPainter = TextPainter(text)
+    override val children: MutableList<RenderBox> = mutableListOf()
+
+    override fun layout(constraints: BoxConstraints) {
+        textPainter.layout(
+            minWidth = constraints.minWidth, maxWidth = constraints.maxWidth
+        )
+
+        val textSize = textPainter.size
+        size = constraints.constrain(textSize)
+    }
+
+    override fun paint(context: PaintingContext, offset: Offset) {
+        textPainter.paint(context.canvas, offset)
+    }
+}
+
 class TextSpan(
     val text: String,
     val textStyle: TextStyle? = null
@@ -74,25 +94,5 @@ class TextPainter(
 
     fun paint(canvas: Canvas, offset: Offset) {
         paragraph!!.paint(canvas, offset.dx.toFloat(), offset.dy.toFloat())
-    }
-}
-
-class RenderParagraph(
-    text: TextSpan
-) : RenderBox(), ContainerRenderObject<RenderBox> {
-    private val textPainter = TextPainter(text)
-    override val children: MutableList<RenderBox> = mutableListOf()
-
-    override fun layout(constraints: BoxConstraints) {
-        textPainter.layout(
-            minWidth = constraints.minWidth, maxWidth = constraints.maxWidth
-        )
-
-        val textSize = textPainter.size
-        size = constraints.constrain(textSize)
-    }
-
-    override fun paint(context: PaintingContext, offset: Offset) {
-        textPainter.paint(context.canvas, offset)
     }
 }

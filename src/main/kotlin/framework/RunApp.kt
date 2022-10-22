@@ -1,13 +1,14 @@
 package framework
 
+import common.KeyEvent
 import common.Layer
 import framework.widget.Widget
 
-fun runApp(engine: Engine, app: Widget) {
+fun runApp(app: Widget) {
     WidgetsFlumeBinding.apply {
-        ensureInitialized(engine)
+        ensureInitialized()
         attachRootWidget(app)
-        drawFrame()
+        engine.scheduleFrame()
     }
 }
 
@@ -15,4 +16,11 @@ interface Engine {
     val viewConfiguration: ViewConfiguration
 
     fun render(rootLayer: Layer)
+    fun scheduleFrame()
+}
+
+interface WidgetsBinding {
+    fun connectToEngine(engine: Engine)
+    fun beginFrame()
+    fun handleKeyEvent(event: KeyEvent)
 }
