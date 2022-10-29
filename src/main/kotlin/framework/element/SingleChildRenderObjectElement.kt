@@ -5,7 +5,7 @@ import framework.render.mixin.RenderObjectWithChild
 import framework.widget.SingleChildRenderObjectWidget
 
 class SingleChildRenderObjectElement(widget: SingleChildRenderObjectWidget) : RenderObjectElement(widget) {
-    val widgetCasted: SingleChildRenderObjectWidget = widget
+    private val widgetCasted: SingleChildRenderObjectWidget = widget
     private var child: Element? = null
 
     override fun mount(parent: Element?) {
@@ -14,6 +14,6 @@ class SingleChildRenderObjectElement(widget: SingleChildRenderObjectWidget) : Re
     }
 
     override fun insertRenderObjectChild(child: RenderObject) {
-        (renderObject as RenderObjectWithChild<RenderObject>).setRenderObjectChild(child)
+        (renderObject as RenderObjectWithChild<RenderObject>).child = child
     }
 }

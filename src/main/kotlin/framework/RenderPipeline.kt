@@ -1,18 +1,31 @@
 package framework
 
-import common.Offset
+import framework.render.RenderObject
 import framework.render.RenderView
 
-class RenderPipeline {
+class RenderPipeline(private val onNeedVisualUpdate: () -> Unit) {
     var renderView: RenderView? = null
+        set(value) {
+            value?.attach(this)
+            field = value
+        }
+    val nodesNeedingPaint: MutableList<RenderObject> = mutableListOf()
+
     fun flushLayout() {
         renderView!!.performLayout()
     }
 
     fun flushPaint() {
-        val rootLayer = renderView!!.layer
-        val context = PaintingContext(rootLayer, renderView!!.size.and(Offset.zero))
-        renderView!!.paint(context, Offset.zero)
-        context.stopRecordingIfNeeded()
+        val dirtyNodes = nodesNeedingPaint.toList()
+        nodesNeedingPaint.clear()
+        for (node in dirtyNodes) {
+            if (node.needsPaint && node.owner == this) {
+                PaintingContext.repaintCompositedChild(node)
+            }
+        }
+    }
+
+    fun requestVisualUpdate() {
+        onNeedVisualUpdate()
     }
 }

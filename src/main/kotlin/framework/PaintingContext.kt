@@ -1,9 +1,27 @@
 package framework
 
 import common.*
+import framework.render.RenderObject
 import org.jetbrains.skia.*
 
 class PaintingContext(private val containerLayer: ContainerLayer, private val estimatedBounds: Rect) {
+    companion object {
+        fun repaintCompositedChild(child: RenderObject) {
+            var childLayer = child.layer as TransformLayer?
+            if (childLayer == null) {
+                childLayer = TransformLayer()
+                child.layer = childLayer
+            } else {
+                childLayer.children.clear()
+            }
+            val childContext = PaintingContext(childLayer, child.size.and(Offset.zero))
+
+            child.needsPaint = false
+            child.paint(childContext, Offset.zero)
+            childContext.stopRecordingIfNeeded()
+        }
+    }
+
     private var currentLayer: PictureLayer? = null
     private var recorder: PictureRecorder? = null
     private var _canvas: Canvas? = null
@@ -105,6 +123,25 @@ class PaintingContext(private val containerLayer: ContainerLayer, private val es
         }
         pushLayer(layer, painter, offset, childPaintBounds = offsetClipRect)
         return layer
+    }
+
+    fun paintChild(child: RenderObject, offset: Offset) {
+        if (child.isRepaintBoundary) {
+            stopRecordingIfNeeded()
+            compositeChild(child, offset)
+        } else {
+            child.needsPaint = false
+            child.paint(this, offset)
+        }
+    }
+
+    private fun compositeChild(child: RenderObject, offset: Offset) {
+        if (child.needsPaint) {
+            repaintCompositedChild(child)
+        }
+        val childTransformLayer = child.layer as TransformLayer
+        childTransformLayer.transform = Matrix33.makeTranslate(offset.dx.toFloat(), offset.dy.toFloat())
+        containerLayer.children.add(childTransformLayer)
     }
 }
 

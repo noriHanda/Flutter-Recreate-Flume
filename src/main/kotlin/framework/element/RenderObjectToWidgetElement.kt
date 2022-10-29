@@ -17,6 +17,6 @@ class RenderObjectToWidgetElement(widget: RenderObjectWidget) : RenderObjectElem
     }
 
     override fun insertRenderObjectChild(child: RenderObject) {
-        (renderObject as RenderObjectWithChild<RenderObject>).setRenderObjectChild(child)
+        (renderObject as RenderObjectWithChild<RenderObject>).child = child
     }
 }

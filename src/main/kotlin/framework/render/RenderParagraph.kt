@@ -3,7 +3,7 @@ package framework.render
 import common.Offset
 import common.Size
 import framework.PaintingContext
-import framework.geometrics.BoxConstraints
+import framework.RenderPipeline
 import framework.render.mixin.ContainerRenderObject
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.FontMgr
@@ -11,12 +11,13 @@ import org.jetbrains.skia.paragraph.*
 import kotlin.math.ceil
 
 class RenderParagraph(
-    text: TextSpan
+    text: TextSpan,
 ) : RenderBox(), ContainerRenderObject<RenderBox> {
     private val textPainter = TextPainter(text)
+    override val thisRef: RenderObject = this
     override val children: MutableList<RenderBox> = mutableListOf()
 
-    override fun layout(constraints: BoxConstraints) {
+    override fun performLayout() {
         textPainter.layout(
             minWidth = constraints.minWidth, maxWidth = constraints.maxWidth
         )
@@ -27,6 +28,11 @@ class RenderParagraph(
 
     override fun paint(context: PaintingContext, offset: Offset) {
         textPainter.paint(context.canvas, offset)
+    }
+
+    override fun attach(owner: RenderPipeline) {
+        super.attach(owner)
+        attachChildren(owner)
     }
 }
 
