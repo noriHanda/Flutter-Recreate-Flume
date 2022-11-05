@@ -23,4 +23,10 @@ interface ContainerRenderObject<ChildType : RenderObject> {
             child.attach(owner)
         }
     }
+
+    fun redepthChildren(callback: (child: RenderObject) -> Unit) {
+        for (child in children) {
+            child.let(callback)
+        }
+    }
 }

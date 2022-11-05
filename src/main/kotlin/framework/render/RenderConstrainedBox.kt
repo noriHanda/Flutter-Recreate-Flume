@@ -8,7 +8,7 @@ class RenderConstrainedBox(
 
     override fun performLayout() {
         size = if (child != null) {
-            child!!.layout(additionalConstraints.enforce(constraints))
+            child!!.layout(additionalConstraints.enforce(constraints), parentUsesSize = true)
             child!!.size
         } else {
             additionalConstraints.enforce(constraints).constrain(size)

@@ -31,6 +31,10 @@ interface RenderObjectWithChild<ChildType : RenderObject> {
     fun visitChildren(visitor: RenderObjectVisitor) {
         child?.let(visitor)
     }
+
+    fun redepthChildren(callback: (child: RenderObject) -> Unit) {
+        child?.let(callback)
+    }
 }
 
 typealias RenderObjectVisitor = (child: RenderObject) -> Unit

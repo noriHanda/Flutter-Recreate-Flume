@@ -3,6 +3,7 @@ import common.Size
 import engine.runFlume
 import framework.WidgetsFlumeBinding
 import framework.geometrics.Axis
+import framework.geometrics.CrossAxisAlignment
 import framework.geometrics.MainAxisSize
 import framework.painting.BorderRadius
 import framework.render.TextSpan
@@ -12,6 +13,9 @@ import framework.widget.*
 import framework.widget.paint.ClipOval
 import framework.widget.paint.ClipPath
 import framework.widget.paint.ClipRRect
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.skia.Path
 import org.jetbrains.skia.paragraph.TextStyle
 
@@ -20,18 +24,34 @@ fun main() {
 }
 
 fun appMain() {
-    runApp(createWidgetTree())
-    WidgetsFlumeBinding.setOnKeyEventCallback {
-        when (it.character) {
-            "r" -> runApp(createWidgetTree(LightPhase.Red))
-            "y" -> runApp(createWidgetTree(LightPhase.Yellow))
-            "g" -> runApp(createWidgetTree(LightPhase.Green))
-            "a" -> runApp(createWidgetTree(LightPhase.All))
+    runApp(createProgress(0.0, 640))
+    GlobalScope.launch {
+        for (p in 0..100) {
+            delay(300)
+            runApp(createProgress(p / 100.0, 640))
+            WidgetsFlumeBinding.pipeline.renderView!!.needsLayout = true
+            WidgetsFlumeBinding.pipeline.nodesNeedingLayout.add(WidgetsFlumeBinding.pipeline.renderView!!)
+            WidgetsFlumeBinding.ensureVisualUpdate()
         }
-        WidgetsFlumeBinding.pipeline.renderView!!.needsPaint = true
-        WidgetsFlumeBinding.pipeline.nodesNeedingPaint.add(WidgetsFlumeBinding.pipeline.renderView!!)
-        WidgetsFlumeBinding.ensureVisualUpdate()
     }
+}
+
+fun createProgress(progress: Double, maxWidth: Int): Widget {
+    return Flex(
+        direction = Axis.Vertical,
+        crossAxisAlignment = CrossAxisAlignment.Start,
+        mainAxisSize = MainAxisSize.Min,
+        children = listOf(
+            SizedBox(
+                width = (maxWidth * progress).coerceIn(0.0..maxWidth.toDouble()),
+                height = 50.0,
+                child = ColoredBox(color = 0xFF4CAF50.toInt())
+            ),
+            RichText(
+                text = TextSpan("${(progress * 100).toInt()}%")
+            )
+        )
+    )
 }
 
 enum class LightPhase {
