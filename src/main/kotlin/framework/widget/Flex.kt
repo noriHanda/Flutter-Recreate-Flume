@@ -2,7 +2,6 @@ package framework.widget
 
 import framework.geometrics.*
 import framework.render.RenderFlex
-import framework.render.RenderObject
 
 class Flex(
     children: List<Widget> = listOf(),
@@ -11,8 +10,8 @@ class Flex(
     val mainAxisSize: MainAxisSize = MainAxisSize.Max,
     val crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
     val verticalDirection: VerticalDirection = VerticalDirection.Down,
-) : MultiChildRenderObjectWidget(children) {
-    override fun createRenderObject(): RenderObject {
+) : MultiChildRenderObjectWidget<RenderFlex>(children) {
+    override fun createRenderObject(): RenderFlex {
         return RenderFlex(
             direction,
             mainAxisAlignment,

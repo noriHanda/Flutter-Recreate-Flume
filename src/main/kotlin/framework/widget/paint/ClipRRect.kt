@@ -2,7 +2,6 @@ package framework.widget.paint
 
 import common.Clip
 import framework.painting.BorderRadius
-import framework.render.RenderObject
 import framework.render.clip.CustomClipper
 import framework.render.clip.RenderClipRRect
 import framework.widget.SingleChildRenderObjectWidget
@@ -14,8 +13,8 @@ class ClipRRect(
     val clipBehavior: Clip = Clip.AntiAlias,
     val borderRadius: BorderRadius = BorderRadius.zero,
     child: Widget? = null,
-) : SingleChildRenderObjectWidget(child) {
-    override fun createRenderObject(): RenderObject {
+) : SingleChildRenderObjectWidget<RenderClipRRect>(child) {
+    override fun createRenderObject(): RenderClipRRect {
         return RenderClipRRect(clipper = clipper, clipBehavior = clipBehavior, borderRadius = borderRadius)
     }
 }
