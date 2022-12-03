@@ -17,6 +17,7 @@ class RenderClipPath(
 
     override fun paint(context: PaintingContext, offset: Offset) {
         layer = if (child != null) {
+            updateClip()
             context.pushClipPath(
                 offset,
                 size.and(Offset.zero),

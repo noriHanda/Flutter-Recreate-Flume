@@ -14,6 +14,7 @@ class RenderClipRect(
 
     override fun paint(context: PaintingContext, offset: Offset) {
         layer = if (child != null) {
+            updateClip()
             context.pushClipRect(
                 offset,
                 clip!!,

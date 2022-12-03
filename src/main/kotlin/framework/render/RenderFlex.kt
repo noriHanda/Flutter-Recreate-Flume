@@ -9,12 +9,18 @@ import framework.render.mixin.ContainerRenderObject
 import kotlin.math.max
 
 class RenderFlex(
-    val direction: Axis = Axis.Vertical,
-    val mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
-    val mainAxisSize: MainAxisSize = MainAxisSize.Max,
-    val crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
-    val verticalDirection: VerticalDirection = VerticalDirection.Down,
+    direction: Axis = Axis.Vertical,
+    mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
+    mainAxisSize: MainAxisSize = MainAxisSize.Max,
+    crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
+    verticalDirection: VerticalDirection = VerticalDirection.Down,
 ) : RenderBox(), ContainerRenderObject<RenderBox> {
+    var direction: Axis by MarkLayoutProperty(direction)
+    var mainAxisAlignment: MainAxisAlignment by MarkLayoutProperty(mainAxisAlignment)
+    var mainAxisSize: MainAxisSize by MarkLayoutProperty(mainAxisSize)
+    var crossAxisAlignment: CrossAxisAlignment by MarkLayoutProperty(crossAxisAlignment)
+    var verticalDirection: VerticalDirection by MarkLayoutProperty(verticalDirection)
+    
     override val children: MutableList<RenderBox> = mutableListOf()
     override val thisRef: RenderObject = this
 
@@ -182,6 +188,11 @@ class RenderFlex(
     override fun attach(owner: RenderPipeline) {
         super.attach(owner)
         attachChildren(owner)
+    }
+
+    override fun detach() {
+        super.detach()
+        detachChildren()
     }
 
     override fun visitChildren(visitor: RenderObjectVisitor) {

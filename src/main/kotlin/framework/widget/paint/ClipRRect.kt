@@ -17,4 +17,11 @@ class ClipRRect(
     override fun createRenderObject(): RenderClipRRect {
         return RenderClipRRect(clipper = clipper, clipBehavior = clipBehavior, borderRadius = borderRadius)
     }
+
+    override fun updateRenderObject(renderObject: RenderClipRRect) {
+        renderObject.let {
+            it.clipper = clipper
+            it.clipBehavior = clipBehavior
+        }
+    }
 }

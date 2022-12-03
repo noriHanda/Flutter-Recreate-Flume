@@ -58,4 +58,78 @@ abstract class RenderObjectElement<T : RenderObject>(
     open fun removeRenderObjectChild(child: RenderObject) {
 
     }
+
+    protected fun updateChildren(
+        oldChildren: List<Element>,
+        newWidgets: List<Widget>,
+        forgottenChildren: Set<Element>? = null,
+    ): List<Element> {
+        fun replaceWithNullIfForgotten(child: Element): Element? {
+            return if (forgottenChildren?.contains(child) == true) null else child
+        }
+
+        var newChildrenTop = 0
+        var oldChildrenTop = 0
+        var newChildrenBottom = newWidgets.size - 1
+        var oldChildrenBottom = oldChildren.size - 1
+
+        val newChildren: MutableList<Element?> =
+            if (oldChildren.size == newWidgets.size) oldChildren.toMutableList() else (1..newWidgets.size).map { null }
+                .toMutableList()
+
+        while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+            val oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop])
+            val newWidget = newWidgets[newChildrenTop]
+            if (oldChild == null || !Widget.canUpdate(oldChild.widget!!, newWidget)) {
+                break
+            }
+            val newChild = updateChild(oldChild, newWidget)
+            newChildren[newChildrenTop] = newChild
+            newChildrenTop++
+            oldChildrenTop++
+        }
+
+        while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+            val oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenBottom])
+            val newWidget = newWidgets[newChildrenBottom]
+            if (oldChild == null || !Widget.canUpdate(oldChild.widget!!, newWidget)) {
+                break
+            }
+            newChildrenTop--
+            oldChildrenTop--
+        }
+
+        val haveOldChildren = oldChildrenTop <= oldChildrenBottom
+        if (haveOldChildren) {
+            while (oldChildrenTop <= oldChildrenBottom) {
+                val oldChild = replaceWithNullIfForgotten(oldChildren[oldChildrenTop])
+                if (oldChild != null) {
+                    deactivateChild(oldChild)
+                }
+                oldChildrenTop++
+            }
+        }
+
+        while (newChildrenTop <= newChildrenBottom) {
+            val oldChild: Element? = null
+            val newWidget = newWidgets[newChildrenTop]
+            val newChild = updateChild(oldChild, newWidget)
+            newChildren[newChildrenTop] = newChild
+            newChildrenTop++
+        }
+
+        newChildrenBottom = newWidgets.size - 1
+        oldChildrenBottom = oldChildren.size - 1
+
+        while ((oldChildrenTop <= oldChildrenBottom) && (newChildrenTop <= newChildrenBottom)) {
+            val oldChild = oldChildren[oldChildrenTop]
+            val newWidget = newWidgets[newChildrenTop]
+            val newChild = updateChild(oldChild, newWidget)
+            newChildren[newChildrenTop] = newChild
+            newChildrenTop++
+            oldChildrenTop++
+        }
+
+        return newChildren.mapNotNull { it }
+    }
 }

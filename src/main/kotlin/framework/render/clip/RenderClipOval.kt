@@ -15,6 +15,7 @@ class RenderClipOval(
 
     override fun paint(context: PaintingContext, offset: Offset) {
         if (child != null) {
+            updateClip()
             layer = context.pushClipPath(
                 offset,
                 clip!!,

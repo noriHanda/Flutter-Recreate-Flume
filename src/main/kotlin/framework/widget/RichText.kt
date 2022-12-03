@@ -11,4 +11,8 @@ class RichText(
             text
         )
     }
+
+    override fun updateRenderObject(renderObject: RenderParagraph) {
+        renderObject.text = text
+    }
 }

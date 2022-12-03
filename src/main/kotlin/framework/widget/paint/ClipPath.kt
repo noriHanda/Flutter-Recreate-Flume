@@ -15,4 +15,11 @@ class ClipPath(
     override fun createRenderObject(): RenderClipPath {
         return RenderClipPath(clipper = clipper, clipBehavior = clipBehavior)
     }
+
+    override fun updateRenderObject(renderObject: RenderClipPath) {
+        renderObject.let {
+            it.clipper = clipper
+            it.clipBehavior = clipBehavior
+        }
+    }
 }

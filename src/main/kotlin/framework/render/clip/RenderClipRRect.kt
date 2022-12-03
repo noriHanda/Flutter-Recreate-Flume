@@ -8,16 +8,23 @@ import framework.painting.BorderRadius
 import org.jetbrains.skia.RRect
 
 class RenderClipRRect(
-    val borderRadius: BorderRadius,
+    borderRadius: BorderRadius,
     clipper: CustomClipper<RRect>? = null,
     clipBehavior: Clip = Clip.AntiAlias,
 ) : RenderCustomClip<RRect>(clipper, clipBehavior) {
+    var borderRadius: BorderRadius = borderRadius
+        set(value) {
+            if (field == value) return
+            field = value
+            markNeedsClip()
+        }
 
     override val defaultClip: RRect
         get() = borderRadius.toRRect(size.and(Offset.zero))
 
     override fun paint(context: PaintingContext, offset: Offset) {
         layer = if (child != null) {
+            updateClip()
             context.pushClipRRect(
                 offset,
                 clip!!,

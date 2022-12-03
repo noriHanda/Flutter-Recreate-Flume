@@ -12,6 +12,11 @@ interface ContainerRenderObject<ChildType : RenderObject> {
         children.add(child)
     }
 
+    fun remove(child: ChildType) {
+        children.remove(child)
+        thisRef.dropChild(child)
+    }
+
     fun visitChildren(visitor: RenderObjectVisitor) {
         for (child in children) {
             visitor(child)
@@ -21,6 +26,12 @@ interface ContainerRenderObject<ChildType : RenderObject> {
     fun attachChildren(owner: RenderPipeline) {
         for (child in children) {
             child.attach(owner)
+        }
+    }
+
+    fun detachChildren() {
+        for (child in children) {
+            child.detach()
         }
     }
 

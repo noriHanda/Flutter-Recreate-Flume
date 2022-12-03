@@ -13,6 +13,14 @@ import kotlin.math.ceil
 class RenderParagraph(
     text: TextSpan,
 ) : RenderBox(), ContainerRenderObject<RenderBox> {
+    var text: TextSpan
+        get() = textPainter.text
+        set(value) {
+            if (textPainter.text == value) return
+            textPainter.text = value
+            markNeedsLayout()
+        }
+
     private val textPainter = TextPainter(text)
     override val thisRef: RenderObject = this
     override val children: MutableList<RenderBox> = mutableListOf()
@@ -33,6 +41,11 @@ class RenderParagraph(
     override fun attach(owner: RenderPipeline) {
         super.attach(owner)
         attachChildren(owner)
+    }
+
+    override fun detach() {
+        super.detach()
+        detachChildren()
     }
 
     override fun visitChildren(visitor: RenderObjectVisitor) {

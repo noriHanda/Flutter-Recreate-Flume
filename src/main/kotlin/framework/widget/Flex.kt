@@ -20,4 +20,14 @@ class Flex(
             verticalDirection
         )
     }
+
+    override fun updateRenderObject(renderObject: RenderFlex) {
+        renderObject.let {
+            it.direction = direction
+            it.mainAxisAlignment = mainAxisAlignment
+            it.mainAxisSize = mainAxisSize
+            it.crossAxisAlignment = crossAxisAlignment
+            it.verticalDirection = verticalDirection
+        }
+    }
 }
