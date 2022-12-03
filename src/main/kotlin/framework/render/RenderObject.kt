@@ -7,6 +7,7 @@ import framework.PaintingContext
 import framework.RenderPipeline
 import framework.geometrics.BoxConstraints
 import framework.render.mixin.RenderObjectVisitor
+import kotlin.reflect.KProperty
 
 abstract class RenderObject {
     companion object {
@@ -147,6 +148,46 @@ abstract class RenderObject {
     }
 
     open fun visitChildren(visitor: RenderObjectVisitor) {}
+
+    open fun detach() {
+        this.owner = null
+    }
+
+    fun dropChild(child: RenderObject) {
+        child.cleanRelayoutBoundary()
+        child.parentData = null
+        child.parent = null
+        if (attached) {
+            child.detach()
+        }
+        markNeedsLayout()
+    }
 }
 
 typealias RenderObjectVisitor = (child: RenderObject) -> Unit
+
+class MarkPaintProperty<T>(initialValue: T) {
+    var child: T = initialValue
+    operator fun getValue(thisRef: RenderObject, property: KProperty<*>): T {
+        return child
+    }
+
+    operator fun setValue(thisRef: RenderObject, property: KProperty<*>, value: T) {
+        if (child == value) return
+        child = value
+        thisRef.markNeedsPaint()
+    }
+}
+
+class MarkLayoutProperty<T>(initialValue: T) {
+    var child: T = initialValue
+    operator fun getValue(thisRef: RenderObject, property: KProperty<*>): T {
+        return child
+    }
+
+    operator fun setValue(thisRef: RenderObject, property: KProperty<*>, value: T) {
+        if (child == value) return
+        child = value
+        thisRef.markNeedsLayout()
+    }
+}

@@ -16,4 +16,12 @@ class Align(
             heightFactor = heightFactor
         )
     }
+
+    override fun updateRenderObject(renderObject: RenderPositionedBox) {
+        renderObject.let {
+            it.alignment = alignment
+            it.widthFactor = widthFactor
+            it.heightFactor = heightFactor
+        }
+    }
 }

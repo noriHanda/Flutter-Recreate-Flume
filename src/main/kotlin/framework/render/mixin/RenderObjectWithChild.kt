@@ -11,6 +11,10 @@ interface RenderObjectWithChild<ChildType : RenderObject> {
         child?.attach(owner)
     }
 
+    fun detachChild() {
+        child?.detach()
+    }
+
     class ChildDelegate<ChildType : RenderObject> {
         var child: ChildType? = null
         operator fun getValue(thisRef: RenderObject, property: KProperty<*>): ChildType? {
@@ -18,6 +22,9 @@ interface RenderObjectWithChild<ChildType : RenderObject> {
         }
 
         operator fun setValue(thisRef: RenderObject, property: KProperty<*>, value: ChildType?) {
+            if (child != null) {
+                thisRef.dropChild(child!!)
+            }
             child = value
             child?.let {
                 thisRef.adoptChild(it)
