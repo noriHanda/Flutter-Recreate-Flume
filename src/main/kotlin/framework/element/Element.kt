@@ -4,13 +4,16 @@ import framework.render.RenderObject
 import framework.widget.Widget
 
 abstract class Element(
-    open var widget: Widget?,
-) : Comparable<Element> {
+    widget: Widget,
+) : Comparable<Element>, BuildContext {
     var parent: Element? = null
     var depth: Int = 0
-    var owner: BuildOwner? = null
+    override var owner: BuildOwner? = null
     var dirty: Boolean = true
     var inDirtyList: Boolean = false
+
+    final override var widget: Widget = widget
+        private set
 
     open fun visitChildren(visitor: ElementVisitor) {
 
@@ -35,7 +38,7 @@ abstract class Element(
             val newChild: Element
             if (child.widget == newWidget) {
                 newChild = child
-            } else if (Widget.canUpdate(child.widget!!, newWidget)) {
+            } else if (Widget.canUpdate(child.widget, newWidget)) {
                 child.update(newWidget)
                 newChild = child
             } else {
@@ -96,7 +99,7 @@ abstract class Element(
         return 0
     }
 
-    fun didChangeDependencies() {
+    open fun didChangeDependencies() {
         markNeedsBuild()
     }
 
